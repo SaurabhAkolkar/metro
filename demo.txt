@@ -1,0 +1,127 @@
+
+  var color = Chart.helpers.color;
+  var barChartData = {
+  labels: [
+  @foreach($graph as $g) 
+  '{{date("d",strtotime($g->date))}}', 
+  @endforeach
+],
+      datasets: [ {
+          type: 'line',
+          label: 'Female',
+  fill:true,
+          backgroundColor: color("#ff4081").alpha(0.7).rgbString(),
+          borderColor: "#ad1457",
+          data: [
+              @foreach($graph as $g)
+       {{ $g->female}},
+    @endforeach
+          ]
+      },
+ {
+          type: 'line',
+  title:"days",
+          label: 'Male',
+  fill:true,
+          backgroundColor: color("#2962ff").alpha(0.5).rgbString(),
+          borderColor: "#2962ff",
+          data: [
+          @foreach($graph as $g)
+       {{$g->male }},
+    @endforeach
+          ]
+      },
+{
+          type: 'bar',
+          label: 'Total',
+          backgroundColor: color("#00c853").alpha(0.7).rgbString(),
+          borderColor: "#00c853",
+          data: [
+              @foreach($graph as $g)
+       {{$g->male + $g->female}},
+    @endforeach
+          ]
+      }
+
+
+]
+  };
+
+  // Define a plugin to provide data labels
+  Chart.plugins.register({
+      afterDatasetsDraw: function(chart) {
+          var ctx = chart.ctx;
+
+          chart.data.datasets.forEach(function(dataset, i) {
+              var meta = chart.getDatasetMeta(i);
+              if (!meta.hidden) {
+                  meta.data.forEach(function(element, index) {
+                      // Draw the text in black, with the specified font
+                      ctx.fillStyle = 'rgb(0, 0, 0)';
+
+                      var fontSize = 16;
+                      var fontStyle = 'normal';
+                      var fontFamily = 'Helvetica Neue';
+                      ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+
+                      // Just naively convert to string for now
+                      var dataString = dataset.data[index].toString();
+
+                      // Make sure alignment settings are correct
+                      ctx.textAlign = 'center';
+                      ctx.textBaseline = 'middle';
+
+                      var padding = 5;
+                      var position = element.tooltipPosition();
+        if(i==2)
+                      ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
+                  });
+              }
+          });
+      }
+  });
+
+  window.onload = function() {
+      var ctx = document.getElementById('canvas').getContext('2d');
+      window.myBar = new Chart(ctx, {
+          type: 'bar',
+          data: barChartData,
+          options: {
+              responsive: true,
+              title: {
+                  display: true,
+                  text: 'Users Per day'
+              },
+    scales: {
+              xAxes: [{
+                  display: true,
+                  scaleLabel: {
+                      display: true,
+                      labelString: 'Days'
+                  }
+              }],
+              yAxes: [{
+                  display: true,
+                  scaleLabel: {
+                      display: true,
+                      labelString: 'No of Users'
+                  }
+              }]
+          }
+    
+          }
+      });
+  };
+
+  
+  <script src="{{ url("assets/admin/plugin/chartjs/Chart.bundle.js") }}"></script>
+<script src="{{ url("assets/admin/plugin/chartjs/utils.js") }}"></script>
+<style>
+  canvas {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    /* max-height: 270px; */
+  }
+</style>
+<script>

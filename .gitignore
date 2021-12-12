@@ -1,0 +1,8 @@
+.env
+/.env
+/storage/*.key
+/vendor
+/assets/images/message/
+/assets/images/medical/
+/assets/images/news/
+/assets/images/users/
