@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Validator;
+use JWTAuth;
 
 class AuthController extends Controller
 {
@@ -45,8 +46,8 @@ class AuthController extends Controller
         }
 
         $credentials = request(['mobile', 'password']);
-
-        if (!$token = Auth::guard('api')->attempt($credentials)) {
+       
+        if (!$token = JWTAuth::attempt($credentials)) {
             return Response::fail('Invalid User or Password');
         }
 
@@ -61,7 +62,7 @@ class AuthController extends Controller
     public function me(int $t = 0, $user_id = 0)
     {
         //DB::enableQueryLog();
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         if ($t === 1) {
             $me = CommonQuery::getMainQuery()
@@ -70,7 +71,7 @@ class AuthController extends Controller
         } else {
             $me = CommonQuery::getMainQuery()
                 ->where('users.id', $user->id)
-                ->first();
+                ->get();
         }
 
         if (collect($me)->isEmpty()) {
@@ -144,7 +145,8 @@ class AuthController extends Controller
      */
     protected function respondWithToken($token, int $x = 0, $firebase_token = null)
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
+       
         if ($x === 0 && $user->is_active == "0") {
             return Response::fail("Activate Your Account from Email");
         }
@@ -194,8 +196,8 @@ class AuthController extends Controller
 
         unset($data['otp']);
         $data['verify_token'] = Str::random(60);
-        $user = User::create($data)->count();
-        if ($user > 0) {
+        $user = User::create($data);
+        if ($user) {
             return $this->login($request, 1);
         }
 

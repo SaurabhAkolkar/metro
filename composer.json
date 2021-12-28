@@ -12,7 +12,7 @@
         "laravel/tinker": "~1.0",
         "seshac/otp-generator": "^0.0.6",
         "spatie/laravel-medialibrary": "7.0.0",
-        "tymon/jwt-auth": "1.0.0-rc.2"
+        "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {
         "filp/whoops": "~2.0",
